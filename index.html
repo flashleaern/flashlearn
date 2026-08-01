@@ -162,8 +162,29 @@
         </div>
     </div>
 
+    <!-- 💬 GERİ BİLDİRİM FORMU (EN ALT KISIM) -->
+    <div class="container mx-auto px-6 max-w-5xl z-10 mt-12 mb-6">
+        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <h3 class="text-2xl font-black text-white mb-2 flex items-center gap-2">💬 Geri Bildirim & Öneri</h3>
+            <p class="text-slate-400 text-sm mb-6">Siteyi geliştirmemiz için düşüncelerini ve önerilerini bizimle paylaşabilirsin.</p>
+            <form id="feedback-form" onsubmit="feedbackGonder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">ADIN VEYA LAKABIN (İSTEĞE BAĞLI)</label>
+                    <input type="text" id="fb-isim" placeholder="Örn: İsimsiz Öğrenci" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">MESAJIN VEYA ÖNERİN</label>
+                    <textarea id="fb-mesaj" placeholder="Düşüncelerini buraya yazabilirsin..." required class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base min-h-[100px] resize-vertical focus:border-indigo-500 transition"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
+                    Geri Bildirimi Gönder 🚀
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- ALT BİLGİ -->
-    <footer class="bg-slate-900/70 backdrop-blur-md border-t border-slate-800/80 text-slate-400 py-6 mt-16 text-center text-sm z-10">
+    <footer class="bg-slate-900/70 backdrop-blur-md border-t border-slate-800/80 text-slate-400 py-6 mt-10 text-center text-sm z-10">
         <p>© 2026 FlashLearn - Tüm Hakları Saklıdır.</p>
     </footer>
 
@@ -181,6 +202,38 @@
         let mevcutTestSorulari = [];
         let dogruSayisi = 0;
         let yanlisSayisi = 0;
+
+        // 📊 DERS TIKLANMA LOGLAMA FONKSİYONU
+        async function dersTiklandi(dersAdi) {
+            try {
+                await _supabase
+                    .from('ders_tiklanma_loglari')
+                    .insert([{ ders_adi: dersAdi }]);
+            } catch (err) {
+                console.error("Tıklama loglanamadı:", err);
+            }
+        }
+
+        // 💬 GÖNDERİLEN FEEDBACK'İ SUPABASE'E KAYDETME FONKSİYONU
+        async function feedbackGonder(e) {
+            e.preventDefault();
+            const isim = document.getElementById('fb-isim').value.trim() || 'İsimsiz Öğrenci';
+            const mesaj = document.getElementById('fb-mesaj').value.trim();
+
+            if (!mesaj) return;
+
+            const { error } = await _supabase
+                .from('student_feedbacks')
+                .insert([{ ogrenci_adi: isim, mesaj: mesaj }]);
+
+            if (error) {
+                alert("Gönderilirken bir hata oluştu!");
+                console.error(error);
+            } else {
+                alert("Teşekkürler! Geri bildirimin bize ulaştı ⚡");
+                document.getElementById('feedback-form').reset();
+            }
+        }
 
         async function oturumKontrol() {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -358,7 +411,7 @@
                 const soruSayisi = sorular.filter(s => s.kategori === ders.ad).length;
 
                 grid.innerHTML += `
-                    <div onclick="dersSec('${ders.ad}')" 
+                    <div onclick="dersTiklandi('${ders.ad}'); dersSec('${ders.ad}')" 
                          class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 p-8 rounded-3xl cursor-pointer hover:border-indigo-500 hover:-translate-y-2 transition-all duration-300 shadow-2xl group">
                         <div class="text-5xl mb-4 group-hover:scale-125 transition-transform duration-300">${ders.ikon || '📚'}</div>
                         <h3 class="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors">${ders.ad}</h3>
