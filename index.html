@@ -27,13 +27,11 @@
             
             <!-- ⚡ FLASHLEARN LOGO VE MARKA -->
             <h1 class="text-3xl font-black tracking-wide cursor-pointer flex items-center gap-3.5 hover:opacity-90 transition group" onclick="anaSayfayaDon()">
-                <!-- Logo Amblemi -->
                 <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                     <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
                         <span class="text-2xl animate-pulse">⚡</span>
                     </div>
                 </div>
-                <!-- Marka Yazısı -->
                 <span class="bg-gradient-to-r from-amber-400 via-indigo-200 to-white bg-clip-text text-transparent font-extrabold tracking-tight">
                     Flash<span class="text-indigo-400">Learn</span>
                 </span>
@@ -43,7 +41,6 @@
                 <button id="theme-toggle-btn" onclick="temaDegistir()" class="p-3 rounded-2xl font-semibold bg-indigo-700/80 dark:bg-slate-800/80 hover:bg-indigo-800 dark:hover:bg-slate-700 text-amber-300 transition text-2xl shadow-md hover:scale-105 duration-200">☀️</button>
                 <button onclick="anaSayfayaDon()" class="px-5 py-3 rounded-2xl font-bold bg-indigo-700/80 dark:bg-slate-800/80 hover:bg-indigo-800 dark:hover:bg-slate-700 text-white transition text-base hover:scale-105 duration-200 shadow-md">🏠 Tüm Dersler</button>
                 
-                <!-- KULLANICI GİRİŞ DÜĞMESİ -->
                 <div id="auth-btn-area">
                     <button onclick="authModalAc()" class="px-5 py-3 rounded-2xl font-extrabold bg-amber-500 hover:bg-amber-400 text-slate-950 transition text-base shadow-lg hover:scale-105">🔑 Giriş Yap / Kayıt Ol</button>
                 </div>
@@ -51,7 +48,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-10 flex-grow max-w-5xl z-10">
+    <main class="container mx-auto px-6 py-10 flex-grow max-w-5xl z-10 space-y-12">
 
         <!-- EKRAN 1: DERS KARTLARI -->
         <section id="ekran-dersler" class="space-y-8">
@@ -96,6 +93,25 @@
             </div>
         </section>
 
+        <!-- 💬 GERİ BİLDİRİM & ÖNERİ FORMU (ANA İÇERİK İÇİNDE KESİN GÖRÜNÜR ALAN) -->
+        <section class="bg-slate-950/60 backdrop-blur-md border border-indigo-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl mt-16">
+            <h3 class="text-2xl font-black text-white mb-2 flex items-center gap-2">💬 Geri Bildirim & Öneri Gönder</h3>
+            <p class="text-slate-400 text-sm mb-6">Siteyi geliştirmemiz için düşüncelerini, eksikleri veya önerilerini bizimle paylaşabilirsin.</p>
+            <form id="feedback-form" onsubmit="feedbackGonder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">ADIN VEYA LAKABIN (İSTEĞE BAĞLI)</label>
+                    <input type="text" id="fb-isim" placeholder="Örn: İsimsiz Öğrenci" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">MESAJIN VEYA ÖNERİN</label>
+                    <textarea id="fb-mesaj" placeholder="Düşüncelerini buraya yazabilirsin..." required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base min-h-[100px] resize-vertical focus:border-indigo-500 transition"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
+                    Geri Bildirimi Gönder 🚀
+                </button>
+            </form>
+        </section>
+
     </main>
 
     <!-- 🔑 GİRİŞ VE KODLU KAYIT MODAL PENCERESİ -->
@@ -103,13 +119,11 @@
         <div class="bg-slate-900 border border-slate-800 w-full max-w-lg p-8 rounded-3xl shadow-2xl space-y-6 relative">
             <button onclick="authModalKapat()" class="absolute top-5 right-5 text-slate-400 hover:text-white font-bold text-2xl transition">✕</button>
             
-            <!-- SEKMELER (TABLAR) -->
             <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
                 <button id="tab-login-head" onclick="authTabDegistir('login')" class="flex-1 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow">🔑 Giriş Yap</button>
                 <button id="tab-register-head" onclick="authTabDegistir('register')" class="flex-1 py-3 rounded-xl font-bold text-sm text-slate-400">📝 Kayıt Ol (Kodlu)</button>
             </div>
 
-            <!-- TAB 1: GİRİŞ YAP (ŞİFRELİ) -->
             <div id="auth-login-form" class="space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 mb-2">E-POSTA ADRESİNİZ</label>
@@ -124,9 +138,7 @@
                 </button>
             </div>
 
-            <!-- TAB 2: KAYIT OL (KOD DOĞRULAMALI) -->
             <div id="auth-register-form" class="space-y-5 hidden">
-                <!-- KAYIT ADIM 1: BİLGİLER -->
                 <div id="reg-step-1" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-400 mb-2">E-POSTA ADRESİNİZ</label>
@@ -141,10 +153,9 @@
                     </button>
                 </div>
 
-                <!-- KAYIT ADIM 2: 6 HANELİ KOD -->
                 <div id="reg-step-2" class="space-y-4 hidden">
                     <div class="bg-indigo-950/60 border border-indigo-800/60 p-4 rounded-2xl text-center">
-                        <p class="text-sm text-indigo-300"><b>Mailinize 6 haneli doğrulama kodu gönderildi!</b><br>Gelen kutunuzu veya Spam klasörünü kontrol edin.</p>
+                        <p class="text-sm text-indigo-300"><b>Mailinize 6 haneli doğrulama kodu gönderildi!</b><br>Gelen kutunuzu kontrol edin.</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-400 mb-2">6 HANELİ DOĞRULAMA KODU</label>
@@ -159,27 +170,6 @@
                 </div>
             </div>
 
-        </div>
-    </div>
-
-    <!-- 💬 GERİ BİLDİRİM FORMU (EN ALT KISIM) -->
-    <div class="container mx-auto px-6 max-w-5xl z-10 mt-12 mb-6">
-        <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl">
-            <h3 class="text-2xl font-black text-white mb-2 flex items-center gap-2">💬 Geri Bildirim & Öneri</h3>
-            <p class="text-slate-400 text-sm mb-6">Siteyi geliştirmemiz için düşüncelerini ve önerilerini bizimle paylaşabilirsin.</p>
-            <form id="feedback-form" onsubmit="feedbackGonder(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">ADIN VEYA LAKABIN (İSTEĞE BAĞLI)</label>
-                    <input type="text" id="fb-isim" placeholder="Örn: İsimsiz Öğrenci" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">MESAJIN VEYA ÖNERİN</label>
-                    <textarea id="fb-mesaj" placeholder="Düşüncelerini buraya yazabilirsin..." required class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base min-h-[100px] resize-vertical focus:border-indigo-500 transition"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
-                    Geri Bildirimi Gönder 🚀
-                </button>
-            </form>
         </div>
     </div>
 
