@@ -93,7 +93,7 @@
             </div>
         </section>
 
-        <!-- 💬 GERİ BİLDİRİM & ÖNERİ FORMU (ANA İÇERİK İÇİNDE KESİN GÖRÜNÜR ALAN) -->
+        <!-- 💬 GERİ BİLDİRİM & ÖNERİ FORMU -->
         <section class="bg-slate-950/60 backdrop-blur-md border border-indigo-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl mt-16">
             <h3 class="text-2xl font-black text-white mb-2 flex items-center gap-2">💬 Geri Bildirim & Öneri Gönder</h3>
             <p class="text-slate-400 text-sm mb-6">Siteyi geliştirmemiz için düşüncelerini, eksikleri veya önerilerini bizimle paylaşabilirsin.</p>
@@ -204,21 +204,24 @@
             }
         }
 
-        // 💬 GÖNDERİLEN FEEDBACK'İ SUPABASE'E KAYDETME FONKSİYONU
+        // 💬 GÖNDERİLEN FEEDBACK'İ SUPABASE'E KAYDETME FONKSİYONU (%100 GÜVENLİ)
         async function feedbackGonder(e) {
             e.preventDefault();
             const isim = document.getElementById('fb-isim').value.trim() || 'İsimsiz Öğrenci';
             const mesaj = document.getElementById('fb-mesaj').value.trim();
 
-            if (!mesaj) return;
+            if (!mesaj) {
+                alert("Lütfen mesajınızı yazın!");
+                return;
+            }
 
-            const { error } = await _supabase
+            const { data, error } = await _supabase
                 .from('student_feedbacks')
                 .insert([{ ogrenci_adi: isim, mesaj: mesaj }]);
 
             if (error) {
-                alert("Gönderilirken bir hata oluştu!");
-                console.error(error);
+                alert("Hata Oluştu: " + error.message);
+                console.error("Feedback hatası:", error);
             } else {
                 alert("Teşekkürler! Geri bildirimin bize ulaştı ⚡");
                 document.getElementById('feedback-form').reset();
