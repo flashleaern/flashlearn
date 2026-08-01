@@ -2,15 +2,12 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <!-- 📱 MOBİL UYUM İÇİN EN KRİTİK SATIR -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlashLearn - Mobil Uyumlu Çalışma Platformu</title>
-    
-    <!-- Supabase JS CDN (Gerekirse açarsın) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 📱 MOBİL SIĞDIRMA VE TAŞMA ENGELLEME ETİKETİ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FlashLearn - Ders Seçin</title>
     
     <style>
-        /* 🎨 TEMEL VE SIFIRLAMA AYARLARI */
+        /* 🎨 GLOBAL SIFIRLAMA VE TAŞMA ÖNLEME */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -18,279 +15,252 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden; /* Sağa taşmayı kesin olarak engeller */
+            background-color: #0d1117;
+            color: #f0f6fc;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         /* 🔝 ÜST MENÜ (NAVBAR) */
         header {
             width: 100%;
-            background-color: #1e293b;
-            padding: 15px 20px;
+            background-color: #161b22;
+            padding: 12px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
+            justify-content: space-between;
+            border-bottom: 1px solid #30363d;
+            gap: 10px;
         }
 
-        .logo {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #38bdf8;
+        .logo-group {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
 
-        .nav-btn {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .nav-btn:hover {
-            background-color: #2563eb;
-        }
-
-        /* 📦 ANA İÇERİK KAPSAYICISI */
-        .container {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #a855f7; /* Mor-Flash rengi */
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 20px;
-            flex: 1;
-            justify-content: center;
+            gap: 6px;
         }
 
-        /* 🃏 FLASHCARD (DERS KARTI) ANİMASYONU */
-        .card-container {
-            width: 100%;
-            height: 320px;
-            perspective: 1000px;
+        .logo span {
+            color: #f0f6fc;
+        }
+
+        .theme-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 6px 10px;
             cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-courses {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-auth {
+            background: linear-gradient(135deg, #eab308, #ca8a04);
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* 📦 MAIN CONTAINER */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: #8b949e;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* 📚 DERS KARTLARI (GRID) */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            width: 100%;
         }
 
         .card {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 20px;
-        }
-
-        .card.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 25px;
-            font-size: 1.4rem;
-            text-align: center;
-            border-radius: 20px;
-            border: 2px solid #334155;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            user-select: none;
-        }
-
-        .card-front {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            color: #f8fafc;
-        }
-
-        .card-back {
-            background: linear-gradient(145deg, #0284c7, #0369a1);
-            color: white;
-            transform: rotateY(180deg);
-        }
-
-        .card-hint {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 15px;
-            font-weight: normal;
-        }
-
-        .card-back .card-hint {
-            color: #e0f2fe;
-        }
-
-        /* 🕹️ BUTONLAR VE KONTROLLER */
-        .controls {
-            display: flex;
             gap: 12px;
-            width: 100%;
-            justify-content: center;
         }
 
-        .btn {
-            background-color: #1e293b;
-            color: #f8fafc;
-            border: 1px solid #334155;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex: 1;
-            text-align: center;
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #58a6ff;
         }
 
-        .btn:hover {
-            background-color: #334155;
+        .card-icon {
+            font-size: 2.2rem;
         }
 
-        .btn-primary {
-            background-color: #0284c7;
-            border: none;
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
         }
 
-        .btn-primary:hover {
-            background-color: #0369a1;
+        .card-badges {
+            display: flex;
+            gap: 8px;
         }
 
-        /* 📱 MOBİL UYUM (RESPONSIVE / TELEFON EKRANLARI) */
+        .badge {
+            background-color: #21262d;
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #30363d;
+        }
+
+        /* 📱 ÖZEL MOBİL UYUM (768px ve altı telefonlar) */
         @media (max-width: 768px) {
             header {
-                padding: 12px 16px;
+                padding: 10px 12px;
             }
 
             .logo {
-                font-size: 1.2rem;
-            }
-
-            .container {
-                padding: 15px;
-                gap: 15px;
-            }
-
-            .card-container {
-                height: 260px; /* Mobilde kart boyutu otomatik küçülür */
-            }
-
-            .card-front, .card-back {
-                font-size: 1.2rem;
-                padding: 18px;
-            }
-
-            .btn {
-                padding: 12px;
-                font-size: 0.95rem;
-                border-radius: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .card-container {
-                height: 230px;
-            }
-
-            .card-front, .card-back {
                 font-size: 1.1rem;
+            }
+
+            .btn-courses {
+                padding: 6px 8px;
+                font-size: 0.75rem;
+            }
+
+            .btn-auth {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .hero h1 {
+                font-size: 1.4rem;
+            }
+
+            .hero p {
+                font-size: 0.85rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr; /* Mobilde tek sütun yap */
+            }
+
+            .card {
+                padding: 16px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- NAV BAR -->
+    <!-- NAVBAR -->
     <header>
-        <div class="logo">⚡ FlashLearn</div>
-        <button class="nav-btn" onclick="alert('Giriş sistemi Supabase ile yakında aktif!')">Giriş Yap</button>
+        <div class="logo-group">
+            <div class="logo">⚡ <span>FlashLearn</span></div>
+            <button class="theme-btn" title="Tema Değiştir">☀️</button>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-courses">🏠 Tüm Dersler</button>
+            <button class="btn-auth">🔑 Giriş Yap / Kayıt Ol</button>
+        </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <div class="container">
+    <!-- ANA İÇERİK -->
+    <main class="container">
         
-        <!-- FLASHCARD -->
-        <div class="card-container" onclick="flipCard()">
-            <div class="card" id="flashcard">
-                <div class="card-front">
-                    <p id="card-question">Soru Yükleniyor...</p>
-                    <span class="card-hint">🔄 Cevabı görmek için dokun</span>
-                </div>
-                <div class="card-back">
-                    <p id="card-answer">Cevap Yükleniyor...</p>
-                    <span class="card-hint">🔄 Soruyu görmek için dokun</span>
+        <div class="hero">
+            <h1>📚 Ders Seçin</h1>
+            <p>Çalışmak istediğiniz dersi seçerek bölümlere ulaşabilirsiniz.</p>
+        </div>
+
+        <div class="grid">
+            
+            <!-- Biyoloji Kartı -->
+            <div class="card">
+                <div class="card-icon">🧬</div>
+                <div class="card-title">Biyoloji</div>
+                <div class="card-badges">
+                    <span class="badge">📖 1 Not</span>
+                    <span class="badge">📝 0 Soru</span>
                 </div>
             </div>
+
+            <!-- Matematik Kartı -->
+            <div class="card">
+                <div class="card-icon">📐</div>
+                <div class="card-title">Matematik</div>
+                <div class="card-badges">
+                    <span class="badge">📖 0 Not</span>
+                    <span class="badge">📝 0 Soru</span>
+                </div>
+            </div>
+
         </div>
 
-        <!-- CONTROLS -->
-        <div class="controls">
-            <button class="btn" onclick="prevCard()">← Önceki</button>
-            <button class="btn btn-primary" onclick="flipCard()">Çevir</button>
-            <button class="btn" onclick="nextCard()">Sonraki →</button>
-        </div>
+    </main>
 
-    </div>
-
-    <!-- JAVASCRIPT KODLARI -->
-    <script>
-        // Örnek Kart Verileri
-        const cards = [
-            { question: "Mitoz bölünme nedir?", answer: "Tek bir hücreden iki özdeş hücre oluşmasıdır." },
-            { question: "Fotosentez denklemi nedir?", answer: "6CO2 + 6H2O + Işık ➔ C6H12O6 + 6O2" },
-            { question: "Atom numarası neyi gösterir?", answer: "Çekirdekteki proton sayısını gösterir." }
-        ];
-
-        let currentIndex = 0;
-
-        function updateCard() {
-            const cardElement = document.getElementById('flashcard');
-            cardElement.classList.remove('flipped');
-            setTimeout(() => {
-                document.getElementById('card-question').innerText = cards[currentIndex].question;
-                document.getElementById('card-answer').innerText = cards[currentIndex].answer;
-            }, 150);
-        }
-
-        function flipCard() {
-            document.getElementById('flashcard').classList.toggle('flipped');
-        }
-
-        function nextCard() {
-            if (currentIndex < cards.length - 1) {
-                currentIndex++;
-            } else {
-                currentIndex = 0; // Başa dön
-            }
-            updateCard();
-        }
-
-        function prevCard() {
-            if (currentIndex > 0) {
-                currentIndex--;
-            } else {
-                currentIndex = cards.length - 1; // Sona git
-            }
-            updateCard();
-        }
-
-        // Sayfa açıldığında ilk kartı yükle
-        updateCard();
-    </script>
 </body>
 </html>
