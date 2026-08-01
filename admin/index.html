@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-center items-center p-4">
 
-    <!-- 🔑 ADIM A: GİRİŞ EKRANI (Giriş Yapılmadığında Görünür) -->
+    <!-- 🔑 ADIM A: GİRİŞ EKRANI -->
     <div id="admin-login-screen" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
         <div class="text-center space-y-3">
             <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <!-- ⚙️ ADIM B: ANA DASHBOARD (Giriş Yapıldığında Görünür) -->
+    <!-- ⚙️ ADIM B: ANA DASHBOARD -->
     <div id="admin-dashboard" class="hidden w-full max-w-4xl space-y-8 my-8">
         
         <header class="bg-indigo-600/90 border border-indigo-500/30 p-4 rounded-2xl shadow-xl flex justify-between items-center text-white backdrop-blur-md">
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <!-- 📊 EN ÇOK TIKLANAN DERSLER İSTATİSTİĞİ -->
+        <!-- 📊 EN ÇOK İLGİ GÖREN DERSLER -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">🔥 En Çok İlgi Gören Dersler (Tıklanma Analizi)</h3>
             <div id="admin-tiklanma-listesi" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -205,7 +205,6 @@
             oturumKontrol();
         }
 
-        // 📊 TIKLANMA ANALİZİNİ ÇEKME VE GÖSTERME
         async function adminTiklanmaAnaliziYukle() {
             const liste = document.getElementById('admin-tiklanma-listesi');
             const { data, error } = await _supabase.from('ders_tiklanma_loglari').select('ders_adi');
@@ -216,13 +215,11 @@
                 return;
             }
 
-            // Derslere göre tıklanma sayılarını hesapla
             const sayac = {};
             data.forEach(item => {
                 sayac[item.ders_adi] = (sayac[item.ders_adi] || 0) + 1;
             });
 
-            // HTML olarak listele
             liste.innerHTML = Object.entries(sayac).map(([ders, sayi]) => `
                 <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex justify-between items-center">
                     <span class="font-bold text-slate-200">${ders}</span>
@@ -231,13 +228,18 @@
             `).join('');
         }
 
-        // 💬 ÖĞRENCİ GERİ BİLDİRİMLERİNİ ÇEKME
         async function adminFeedbackYukle() {
             const liste = document.getElementById('admin-feedback-listesi');
+            if (!liste) return;
+
             const { data, error } = await _supabase.from('student_feedbacks').select('*').order('created_at', { ascending: false });
 
-            if (!liste) return;
-            if (error || !data || data.length === 0) {
+            if (error) {
+                liste.innerHTML = `<p class="text-rose-500 text-sm">Hata oluştu: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
                 liste.innerHTML = `<p class="text-slate-500 text-sm">Henüz öğrenci geri bildirimi yok.</p>`;
                 return;
             }
