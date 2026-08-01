@@ -73,7 +73,10 @@
 
         <!-- 📊 EN ÇOK İLGİ GÖREN DERSLER -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">🔥 En Çok İlgi Gören Dersler (Tıklanma Analizi)</h3>
+            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3 flex justify-between items-center">
+                <span>🔥 En Çok İlgi Gören Dersler (Tıklanma Analizi)</span>
+                <button onclick="adminTiklanmaAnaliziYukle()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded-xl transition">🔄 Yenile</button>
+            </h3>
             <div id="admin-tiklanma-listesi" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
                 <p class="text-slate-500 text-sm">Veriler yükleniyor...</p>
             </div>
@@ -207,21 +210,35 @@
 
         async function adminTiklanmaAnaliziYukle() {
             const liste = document.getElementById('admin-tiklanma-listesi');
+            if (!liste) return;
+
             const { data, error } = await _supabase.from('ders_tiklanma_loglari').select('ders_adi');
             
-            if (!liste) return;
-            if (error || !data || data.length === 0) {
+            if (error) {
+                console.error("Tıklama log hatası:", error);
+                liste.innerHTML = `<p class="text-rose-500 text-sm sm:col-span-2 md:col-span-3">Hata: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
                 liste.innerHTML = `<p class="text-slate-500 text-sm sm:col-span-2 md:col-span-3">Henüz ders tıklama verisi bulunmuyor.</p>`;
                 return;
             }
 
             const sayac = {};
             data.forEach(item => {
-                sayac[item.ders_adi] = (sayac[item.ders_adi] || 0) + 1;
+                if (item.ders_adi) {
+                    sayac[item.ders_adi] = (sayac[item.ders_adi] || 0) + 1;
+                }
             });
 
+            if (Object.keys(sayac).length === 0) {
+                liste.innerHTML = `<p class="text-slate-500 text-sm sm:col-span-2 md:col-span-3">Geçerli tıklama kaydı yok.</p>`;
+                return;
+            }
+
             liste.innerHTML = Object.entries(sayac).map(([ders, sayi]) => `
-                <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex justify-between items-center">
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-md">
                     <span class="font-bold text-slate-200">${ders}</span>
                     <span class="bg-indigo-950 border border-indigo-800/60 text-indigo-300 px-3 py-1 rounded-xl text-xs font-black">${sayi} Tıklanma</span>
                 </div>
