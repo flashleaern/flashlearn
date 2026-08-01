@@ -7,10 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-center items-center p-4">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center p-4 sm:p-8">
 
     <!-- 🔑 ADIM A: GİRİŞ EKRANI -->
-    <div id="admin-login-screen" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
+    <div id="admin-login-screen" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6 my-auto">
         <div class="text-center space-y-3">
             <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
                 <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
@@ -36,10 +36,10 @@
         </div>
     </div>
 
-    <!-- ⚙️ ADIM B: ANA DASHBOARD -->
-    <div id="admin-dashboard" class="hidden w-full max-w-4xl space-y-8 my-8">
+    <!-- ⚙️ ADIM B: ANA DASHBOARD (ORTALANMIŞ VE GENİŞ) -->
+    <div id="admin-dashboard" class="hidden w-full max-w-5xl space-y-8 my-4">
         
-        <header class="bg-indigo-600/90 border border-indigo-500/30 p-4 rounded-2xl shadow-xl flex justify-between items-center text-white backdrop-blur-md">
+        <header class="bg-indigo-600/90 border border-indigo-500/30 p-5 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4 text-white backdrop-blur-md">
             <h1 class="text-xl font-black tracking-wide flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-md flex items-center justify-center">
                     <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -48,24 +48,28 @@
                 </div>
                 <span>FlashLearn Yönetici Paneli</span>
             </h1>
-            <button onclick="adminCikisYap()" class="bg-slate-950 text-white hover:bg-slate-900 px-4 py-2 rounded-xl text-xs font-bold transition border border-slate-800">🚪 Çıkış Yap</button>
+
+            <!-- 🕒 ADMIN CANLI SAAT -->
+            <div id="admin-canli-saat" class="text-xs font-mono font-bold text-amber-300 bg-slate-950/90 border border-amber-500/40 px-4 py-2 rounded-xl shadow-md">🕒 00:00:00</div>
+
+            <button onclick="adminCikisYap()" class="bg-slate-950 text-white hover:bg-slate-900 px-4 py-2.5 rounded-xl text-xs font-bold transition border border-slate-800">🚪 Çıkış Yap</button>
         </header>
 
         <!-- İSTATİSTİK SAYAÇLARI -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl text-center space-y-1 shadow-lg">
                 <span class="text-xs font-bold text-slate-400 uppercase">Toplam Ders</span>
                 <p id="stat-ders" class="text-3xl font-black text-amber-400">0</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl text-center space-y-1 shadow-lg">
                 <span class="text-xs font-bold text-slate-400 uppercase">Toplam Not</span>
                 <p id="stat-not" class="text-3xl font-black text-indigo-400">0</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl text-center space-y-1 shadow-lg">
                 <span class="text-xs font-bold text-slate-400 uppercase">Yüklü PDF</span>
                 <p id="stat-pdf" class="text-3xl font-black text-purple-400">0</p>
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl text-center space-y-1 shadow-lg">
                 <span class="text-xs font-bold text-slate-400 uppercase">Toplam Soru</span>
                 <p id="stat-soru" class="text-3xl font-black text-emerald-400">0</p>
             </div>
@@ -86,10 +90,10 @@
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">📚 Yeni Ders Ekle / Yönet</h3>
             <div class="grid md:grid-cols-3 gap-3">
-                <input id="yeni-ders-adi" type="text" placeholder="Ders Adı (Örn: Geometri)" class="md:col-span-2 p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
-                <input id="yeni-ders-ikon" type="text" placeholder="İkon Emoji (Örn: 📐)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="yeni-ders-adi" type="text" placeholder="Ders Adı (Örn: Geometri)" class="md:col-span-2 p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
+                <input id="yeni-ders-ikon" type="text" placeholder="İkon Emoji (Örn: 📐)" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
             </div>
-            <button onclick="dersEkle()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">➕ Dersi Sisteme Ekle</button>
+            <button onclick="dersEkle()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl transition">➕ Dersi Sisteme Ekle</button>
             
             <div class="pt-2">
                 <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Mevcut Dersler (Silmek İçin Tıkla):</h4>
@@ -101,51 +105,51 @@
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">📌 Buluta Yeni Not / PDF Ekle</h3>
             <div class="grid md:grid-cols-2 gap-3">
-                <select id="not-kategori" class="p-3 border border-slate-800 rounded-xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
-                <input id="not-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <select id="not-kategori" class="p-3.5 border border-slate-800 rounded-2xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
+                <input id="not-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
             </div>
-            <input id="not-baslik" type="text" placeholder="Not Başlığı" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
-            <textarea id="not-icerik" rows="3" placeholder="Özet Not Metni..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200"></textarea>
+            <input id="not-baslik" type="text" placeholder="Not Başlığı" class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
+            <textarea id="not-icerik" rows="3" placeholder="Özet Not Metni..." class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200"></textarea>
             
             <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-1.5">
                 <label class="block text-xs font-bold text-indigo-400 uppercase tracking-wider">📄 PDF Notu Yükle (İsteğe Bağlı):</label>
                 <input id="not-pdf" type="file" accept=".pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 file:cursor-pointer cursor-pointer">
             </div>
 
-            <button id="not-kaydet-btn" onclick="notEkle()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition">Notu & PDF'i Kaydet</button>
+            <button id="not-kaydet-btn" onclick="notEkle()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-2xl transition">Notu & PDF'i Kaydet</button>
         </div>
 
         <!-- SORU EKLEME FORMU -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">❓ Buluta Yeni Soru Ekle</h3>
             <div class="grid md:grid-cols-2 gap-3">
-                <select id="soru-kategori" class="p-3 border border-slate-800 rounded-xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
-                <input id="soru-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <select id="soru-kategori" class="p-3.5 border border-slate-800 rounded-2xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
+                <input id="soru-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
             </div>
-            <input id="soru-metni" type="text" placeholder="Soru Metni" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            <input id="soru-metni" type="text" placeholder="Soru Metni" class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
             <div class="grid grid-cols-2 gap-3">
-                <input id="sik-a" type="text" placeholder="A Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
-                <input id="sik-b" type="text" placeholder="B Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
-                <input id="sik-c" type="text" placeholder="C Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
-                <input id="sik-d" type="text" placeholder="D Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="sik-a" type="text" placeholder="A Şıkkı" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
+                <input id="sik-b" type="text" placeholder="B Şıkkı" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
+                <input id="sik-c" type="text" placeholder="C Şıkkı" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
+                <input id="sik-d" type="text" placeholder="D Şıkkı" class="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
             </div>
             <div>
-                <label class="block font-semibold mb-1 text-slate-400">Doğru Cevap Hangi Şık?</label>
-                <select id="dogru-sik" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <label class="block font-semibold mb-1 text-slate-400 text-xs uppercase">Doğru Cevap Hangi Şık?</label>
+                <select id="dogru-sik" class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200">
                     <option value="A">A Şıkkı</option>
                     <option value="B">B Şıkkı</option>
                     <option value="C">C Şıkkı</option>
                     <option value="D">D Şıkkı</option>
                 </select>
             </div>
-            <button onclick="soruEkle()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">Soruyu Kaydet</button>
+            <button onclick="soruEkle()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl transition">Soruyu Kaydet</button>
         </div>
 
         <!-- 💬 ÖĞRENCİ GERİ BİLDİRİMLERİ LİSTESİ -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-3 flex justify-between items-center">
                 <span>💬 Öğrenci Geri Bildirimleri & Önerileri</span>
-                <button onclick="adminFeedbackYukle()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-xl transition">🔄 Yenile</button>
+                <button onclick="adminFeedbackYukle()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3.5 py-1.5 rounded-xl transition">🔄 Yenile</button>
             </h3>
             <div id="admin-feedback-listesi" class="space-y-3">
                 <p class="text-slate-500 text-sm">Geri bildirimler yükleniyor...</p>
@@ -173,12 +177,25 @@
 
         let tumDersler = [];
 
+        // 🕒 ADMIN CANLI SAAT FONKSİYONU
+        function adminCanliSaatBaslat() {
+            function guncelle() {
+                const simdi = new Date();
+                const saatStr = simdi.toLocaleTimeString('tr-TR');
+                const saatDiv = document.getElementById('admin-canli-saat');
+                if (saatDiv) {
+                    saatDiv.innerText = `🕒 ${saatStr}`;
+                }
+            }
+            setInterval(guncelle, 1000);
+            guncelle();
+        }
+
         async function oturumKontrol() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
-                document.body.classList.remove('justify-center', 'items-center');
                 dersleriYukle();
                 adminNotlariYukle();
                 adminSorulariYukle();
@@ -187,7 +204,6 @@
             } else {
                 document.getElementById('admin-login-screen').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
-                document.body.classList.add('justify-center', 'items-center');
             }
         }
 
@@ -298,7 +314,7 @@
             const dersListesi = document.getElementById('admin-ders-listesi');
             if (dersListesi) {
                 dersListesi.innerHTML = tumDersler.map(d => `
-                    <span class="inline-flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300">
+                    <span class="inline-flex items-center gap-2 bg-slate-950 border border-slate-800 px-3.5 py-2 rounded-2xl text-xs font-bold text-slate-300 shadow">
                         ${d.ikon} ${d.ad}
                         <button onclick="dersSil(${d.id}, '${d.ad}')" class="text-rose-500 hover:text-rose-400 font-bold ml-1 text-sm">✕</button>
                     </span>
@@ -401,9 +417,9 @@
             if (!data || data.length === 0) return liste.innerHTML = `<p class="text-slate-500 text-sm">Bulutta not yok.</p>`;
             
             liste.innerHTML = data.map(item => `
-                <div class="flex justify-between items-center p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                <div class="flex justify-between items-center p-3.5 bg-slate-950 border border-slate-800 rounded-2xl shadow-sm">
                     <span class="font-medium text-slate-300 truncate"><b class="text-indigo-400">[${item.kategori} - ${item.bolum}]</b> ${item.baslik} ${item.pdf_url ? '📄 (PDF)' : ''}</span>
-                    <button onclick="notSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1 rounded-lg font-bold text-sm transition">🗑️ Sil</button>
+                    <button onclick="notSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1.5 rounded-xl font-bold text-sm transition">🗑️ Sil</button>
                 </div>
             `).join('');
             istatistikleriGuncelle();
@@ -416,9 +432,9 @@
             if (!data || data.length === 0) return liste.innerHTML = `<p class="text-slate-500 text-sm">Bulutta soru yok.</p>`;
             
             liste.innerHTML = data.map(item => `
-                <div class="flex justify-between items-center p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                <div class="flex justify-between items-center p-3.5 bg-slate-950 border border-slate-800 rounded-2xl shadow-sm">
                     <span class="font-medium text-slate-300 truncate"><b class="text-indigo-400">[${item.kategori} - ${item.bolum}]</b> ${item.soru}</span>
-                    <button onclick="soruSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1 rounded-lg font-bold text-sm transition">🗑️ Sil</button>
+                    <button onclick="soruSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1.5 rounded-xl font-bold text-sm transition">🗑️ Sil</button>
                 </div>
             `).join('');
             istatistikleriGuncelle();
@@ -439,6 +455,7 @@
         }
 
         oturumKontrol();
+        adminCanliSaatBaslat();
     </script>
 </body>
 </html>
