@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashLearn - Yönetici Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-center items-center p-4">
+
+    <!-- 🔑 ADIM A: GİRİŞ EKRANI (Giriş Yapılmadığında Görünür) -->
+    <div id="admin-login-screen" class="w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
+        <div class="text-center space-y-3">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                    <span class="text-3xl">⚡</span>
+                </div>
+            </div>
+            <h2 class="text-2xl font-black text-amber-400">FlashLearn Admin</h2>
+            <p class="text-xs text-slate-400">Devam etmek için yönetici e-postan ve şifrenle giriş yap.</p>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">E-POSTA</label>
+                <input id="admin-email" type="email" placeholder="admin@flashlearn.com" class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200 text-sm focus:border-amber-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1">ŞİFRE</label>
+                <input id="admin-password" type="password" placeholder="••••••••" class="w-full p-3.5 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200 text-sm focus:border-amber-500">
+            </div>
+            <button onclick="adminGirisYap()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3.5 rounded-xl transition shadow-lg">
+                Giriş Yap ➔
+            </button>
+        </div>
+    </div>
+
+    <!-- ⚙️ ADIM B: ANA DASHBOARD (Giriş Yapıldığında Görünür) -->
+    <div id="admin-dashboard" class="hidden w-full max-w-4xl space-y-8 my-8">
+        
+        <header class="bg-indigo-600/90 border border-indigo-500/30 p-4 rounded-2xl shadow-xl flex justify-between items-center text-white backdrop-blur-md">
+            <h1 class="text-xl font-black tracking-wide flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-md flex items-center justify-center">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <span class="text-xl">⚡</span>
+                    </div>
+                </div>
+                <span>FlashLearn Yönetici Paneli</span>
+            </h1>
+            <button onclick="adminCikisYap()" class="bg-slate-950 text-white hover:bg-slate-900 px-4 py-2 rounded-xl text-xs font-bold transition border border-slate-800">🚪 Çıkış Yap</button>
+        </header>
+
+        <!-- İSTATİSTİK SAYAÇLARI -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+                <span class="text-xs font-bold text-slate-400 uppercase">Toplam Ders</span>
+                <p id="stat-ders" class="text-3xl font-black text-amber-400">0</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+                <span class="text-xs font-bold text-slate-400 uppercase">Toplam Not</span>
+                <p id="stat-not" class="text-3xl font-black text-indigo-400">0</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+                <span class="text-xs font-bold text-slate-400 uppercase">Yüklü PDF</span>
+                <p id="stat-pdf" class="text-3xl font-black text-purple-400">0</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-center space-y-1">
+                <span class="text-xs font-bold text-slate-400 uppercase">Toplam Soru</span>
+                <p id="stat-soru" class="text-3xl font-black text-emerald-400">0</p>
+            </div>
+        </div>
+
+        <!-- DERS EKLEME FORMU -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">📚 Yeni Ders Ekle / Yönet</h3>
+            <div class="grid md:grid-cols-3 gap-3">
+                <input id="yeni-ders-adi" type="text" placeholder="Ders Adı (Örn: Geometri)" class="md:col-span-2 p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="yeni-ders-ikon" type="text" placeholder="İkon Emoji (Örn: 📐)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            </div>
+            <button onclick="dersEkle()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition">➕ Dersi Sisteme Ekle</button>
+            
+            <div class="pt-2">
+                <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Mevcut Dersler (Silmek İçin Tıkla):</h4>
+                <div id="admin-ders-listesi" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- NOT EKLEME FORMU -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">📌 Buluta Yeni Not / PDF Ekle</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <select id="not-kategori" class="p-3 border border-slate-800 rounded-xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
+                <input id="not-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            </div>
+            <input id="not-baslik" type="text" placeholder="Not Başlığı" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            <textarea id="not-icerik" rows="3" placeholder="Özet Not Metni..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200"></textarea>
+            
+            <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-1.5">
+                <label class="block text-xs font-bold text-indigo-400 uppercase tracking-wider">📄 PDF Notu Yükle (İsteğe Bağlı):</label>
+                <input id="not-pdf" type="file" accept=".pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 file:cursor-pointer cursor-pointer">
+            </div>
+
+            <button id="not-kaydet-btn" onclick="notEkle()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition">Notu & PDF'i Kaydet</button>
+        </div>
+
+        <!-- SORU EKLEME FORMU -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">❓ Buluta Yeni Soru Ekle</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <select id="soru-kategori" class="p-3 border border-slate-800 rounded-xl outline-none bg-slate-950 font-semibold text-slate-200"></select>
+                <input id="soru-bolum" type="text" placeholder="Bölüm / Konu Adı (Örn: Hücre Yapısı)" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            </div>
+            <input id="soru-metni" type="text" placeholder="Soru Metni" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            <div class="grid grid-cols-2 gap-3">
+                <input id="sik-a" type="text" placeholder="A Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="sik-b" type="text" placeholder="B Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="sik-c" type="text" placeholder="C Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                <input id="sik-d" type="text" placeholder="D Şıkkı" class="p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+            </div>
+            <div>
+                <label class="block font-semibold mb-1 text-slate-400">Doğru Cevap Hangi Şık?</label>
+                <select id="dogru-sik" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none text-slate-200">
+                    <option value="A">A Şıkkı</option>
+                    <option value="B">B Şıkkı</option>
+                    <option value="C">C Şıkkı</option>
+                    <option value="D">D Şıkkı</option>
+                </select>
+            </div>
+            <button onclick="soruEkle()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">Soruyu Kaydet</button>
+        </div>
+
+        <!-- MEVCUT NOTLAR LİSTESİ -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-3">🗑️ Buluttaki Notlar</h3>
+            <div id="admin-not-listesi" class="space-y-3"></div>
+        </div>
+
+        <!-- MEVCUT SORULAR LİSTESİ -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-3">🗑️ Buluttaki Sorular</h3>
+            <div id="admin-soru-listesi" class="space-y-3"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://eulpwuoxvgoxjddtqodb.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_HQSCc4MdvipzggDT_DW26Q_VHPU8770";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let tumDersler = [];
+
+        async function oturumKontrol() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.body.classList.remove('justify-center', 'items-center');
+                dersleriYukle();
+                adminNotlariYukle();
+                adminSorulariYukle();
+            } else {
+                document.getElementById('admin-login-screen').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('hidden');
+                document.body.classList.add('justify-center', 'items-center');
+            }
+        }
+
+        async function adminGirisYap() {
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (!email || !password) return alert('E-posta ve şifre girin!');
+
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) return alert('Giriş Başarısız: ' + error.message);
+
+            oturumKontrol();
+        }
+
+        async function adminCikisYap() {
+            await _supabase.auth.signOut();
+            oturumKontrol();
+        }
+
+        async function istatistikleriGuncelle() {
+            const { count: dCount } = await _supabase.from('dersler').select('*', { count: 'exact', head: true });
+            const { count: nCount } = await _supabase.from('notlar').select('*', { count: 'exact', head: true });
+            const { count: sCount } = await _supabase.from('sorular').select('*', { count: 'exact', head: true });
+            const { data: pdfData } = await _supabase.from('notlar').select('id').not('pdf_url', 'is', null);
+
+            document.getElementById('stat-ders').innerText = dCount || 0;
+            document.getElementById('stat-not').innerText = nCount || 0;
+            document.getElementById('stat-pdf').innerText = pdfData ? pdfData.length : 0;
+            document.getElementById('stat-soru').innerText = sCount || 0;
+        }
+
+        async function dersleriYukle() {
+            const { data } = await _supabase.from('dersler').select('*');
+            tumDersler = data || [];
+            
+            const notSelect = document.getElementById('not-kategori');
+            const soruSelect = document.getElementById('soru-kategori');
+            
+            const opsiyonlar = tumDersler.map(d => `<option value="${d.ad}">${d.ikon} ${d.ad}</option>`).join('');
+            if (notSelect) notSelect.innerHTML = opsiyonlar;
+            if (soruSelect) soruSelect.innerHTML = opsiyonlar;
+
+            const dersListesi = document.getElementById('admin-ders-listesi');
+            if (dersListesi) {
+                dersListesi.innerHTML = tumDersler.map(d => `
+                    <span class="inline-flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300">
+                        ${d.ikon} ${d.ad}
+                        <button onclick="dersSil(${d.id}, '${d.ad}')" class="text-rose-500 hover:text-rose-400 font-bold ml-1 text-sm">✕</button>
+                    </span>
+                `).join('');
+            }
+
+            istatistikleriGuncelle();
+        }
+
+        async function dersEkle() {
+            const ad = document.getElementById('yeni-ders-adi').value.trim();
+            const ikon = document.getElementById('yeni-ders-ikon').value.trim() || '📚';
+
+            if (!ad) return alert('Lütfen ders adını yazın!');
+
+            const { error } = await _supabase.from('dersler').insert([{ ad, ikon }]);
+            if (error) return alert('Hata: ' + error.message);
+
+            document.getElementById('yeni-ders-adi').value = '';
+            document.getElementById('yeni-ders-ikon').value = '';
+            dersleriYukle();
+        }
+
+        async function dersSil(id, dersAdi) {
+            if (confirm(`'${dersAdi}' dersini silmek istediğine emin misin?`)) {
+                await _supabase.from('dersler').delete().eq('id', id);
+                dersleriYukle();
+            }
+        }
+
+        async function notEkle() {
+            const kategori = document.getElementById('not-kategori').value;
+            const bolum = document.getElementById('not-bolum').value || "Genel";
+            const baslik = document.getElementById('not-baslik').value;
+            const icerik = document.getElementById('not-icerik').value;
+            const pdfInput = document.getElementById('not-pdf');
+            const pdfFile = pdfInput.files[0];
+            const btn = document.getElementById('not-kaydet-btn');
+
+            if (!baslik || !icerik) return alert('Lütfen başlık ve içeriği doldur!');
+
+            btn.innerText = "⏳ Yükleniyor...";
+            btn.disabled = true;
+
+            let pdf_url = null;
+
+            if (pdfFile) {
+                const cleanFileName = `${Date.now()}_${pdfFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                const { data, error } = await _supabase.storage.from('pdfnotlari').upload(cleanFileName, pdfFile);
+                if (error) {
+                    btn.innerText = "Notu & PDF'i Kaydet";
+                    btn.disabled = false;
+                    return alert("PDF Hatası: " + error.message);
+                }
+                const { data: urlData } = _supabase.storage.from('pdfnotlari').getPublicUrl(cleanFileName);
+                pdf_url = urlData.publicUrl;
+            }
+
+            const { error } = await _supabase.from('notlar').insert([{ kategori, bolum, baslik, icerik, pdf_url }]);
+            btn.innerText = "Notu & PDF'i Kaydet";
+            btn.disabled = false;
+
+            if (error) return alert('Hata: ' + error.message);
+
+            alert('Not yüklendi!');
+            document.getElementById('not-baslik').value = '';
+            document.getElementById('not-icerik').value = '';
+            pdfInput.value = '';
+            adminNotlariYukle();
+        }
+
+        async function soruEkle() {
+            const kategori = document.getElementById('soru-kategori').value;
+            const bolum = document.getElementById('soru-bolum').value || "Genel";
+            const soru = document.getElementById('soru-metni').value;
+            const sik_a = document.getElementById('sik-a').value;
+            const sik_b = document.getElementById('sik-b').value;
+            const sik_c = document.getElementById('sik-c').value;
+            const sik_d = document.getElementById('sik-d').value;
+            const dogru = document.getElementById('dogru-sik').value;
+
+            if (!soru || !sik_a || !sik_b || !sik_c || !sik_d) return alert('Tüm alanları doldur!');
+
+            const { error } = await _supabase.from('sorular').insert([{ kategori, bolum, soru, sik_a, sik_b, sik_c, sik_d, dogru }]);
+            if (error) return alert('Hata: ' + error.message);
+
+            alert('Soru eklendi!');
+            document.getElementById('soru-metni').value = '';
+            document.getElementById('sik-a').value = '';
+            document.getElementById('sik-b').value = '';
+            document.getElementById('sik-c').value = '';
+            document.getElementById('sik-d').value = '';
+            adminSorulariYukle();
+        }
+
+        async function adminNotlariYukle() {
+            const liste = document.getElementById('admin-not-listesi');
+            const { data } = await _supabase.from('notlar').select('*');
+            if (!liste) return;
+            if (!data || data.length === 0) return liste.innerHTML = `<p class="text-slate-500 text-sm">Bulutta not yok.</p>`;
+            
+            liste.innerHTML = data.map(item => `
+                <div class="flex justify-between items-center p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                    <span class="font-medium text-slate-300 truncate"><b class="text-indigo-400">[${item.kategori} - ${item.bolum}]</b> ${item.baslik} ${item.pdf_url ? '📄 (PDF)' : ''}</span>
+                    <button onclick="notSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1 rounded-lg font-bold text-sm transition">🗑️ Sil</button>
+                </div>
+            `).join('');
+            istatistikleriGuncelle();
+        }
+
+        async function adminSorulariYukle() {
+            const liste = document.getElementById('admin-soru-listesi');
+            const { data } = await _supabase.from('sorular').select('*');
+            if (!liste) return;
+            if (!data || data.length === 0) return liste.innerHTML = `<p class="text-slate-500 text-sm">Bulutta soru yok.</p>`;
+            
+            liste.innerHTML = data.map(item => `
+                <div class="flex justify-between items-center p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                    <span class="font-medium text-slate-300 truncate"><b class="text-indigo-400">[${item.kategori} - ${item.bolum}]</b> ${item.soru}</span>
+                    <button onclick="soruSil(${item.id})" class="text-rose-500 hover:bg-rose-950/50 px-3 py-1 rounded-lg font-bold text-sm transition">🗑️ Sil</button>
+                </div>
+            `).join('');
+            istatistikleriGuncelle();
+        }
+
+        async function notSil(id) {
+            if (confirm('Bu notu silmek istiyor musun?')) {
+                await _supabase.from('notlar').delete().eq('id', id);
+                adminNotlariYukle();
+            }
+        }
+
+        async function soruSil(id) {
+            if (confirm('Bu soruyu silmek istiyor musun?')) {
+                await _supabase.from('sorular').delete().eq('id', id);
+                adminSorulariYukle();
+            }
+        }
+
+        oturumKontrol();
+    </script>
+</body>
+</html>
