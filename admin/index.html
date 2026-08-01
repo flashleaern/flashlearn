@@ -71,6 +71,14 @@
             </div>
         </div>
 
+        <!-- 📊 EN ÇOK TIKLANAN DERSLER İSTATİSTİĞİ -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">🔥 En Çok İlgi Gören Dersler (Tıklanma Analizi)</h3>
+            <div id="admin-tiklanma-listesi" class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <p class="text-slate-500 text-sm">Veriler yükleniyor...</p>
+            </div>
+        </div>
+
         <!-- DERS EKLEME FORMU -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">📚 Yeni Ders Ekle / Yönet</h3>
@@ -130,6 +138,17 @@
             <button onclick="soruEkle()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">Soruyu Kaydet</button>
         </div>
 
+        <!-- 💬 ÖĞRENCİ GERİ BİLDİRİMLERİ LİSTESİ -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+            <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-3 flex justify-between items-center">
+                <span>💬 Öğrenci Geri Bildirimleri & Önerileri</span>
+                <button onclick="adminFeedbackYukle()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-xl transition">🔄 Yenile</button>
+            </h3>
+            <div id="admin-feedback-listesi" class="space-y-3">
+                <p class="text-slate-500 text-sm">Geri bildirimler yükleniyor...</p>
+            </div>
+        </div>
+
         <!-- MEVCUT NOTLAR LİSTESİ -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
             <h3 class="text-xl font-bold text-white border-b border-slate-800 pb-3">🗑️ Buluttaki Notlar</h3>
@@ -160,6 +179,8 @@
                 dersleriYukle();
                 adminNotlariYukle();
                 adminSorulariYukle();
+                adminFeedbackYukle();
+                adminTiklanmaAnaliziYukle();
             } else {
                 document.getElementById('admin-login-screen').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
@@ -182,6 +203,54 @@
         async function adminCikisYap() {
             await _supabase.auth.signOut();
             oturumKontrol();
+        }
+
+        // 📊 TIKLANMA ANALİZİNİ ÇEKME VE GÖSTERME
+        async function adminTiklanmaAnaliziYukle() {
+            const liste = document.getElementById('admin-tiklanma-listesi');
+            const { data, error } = await _supabase.from('ders_tiklanma_loglari').select('ders_adi');
+            
+            if (!liste) return;
+            if (error || !data || data.length === 0) {
+                liste.innerHTML = `<p class="text-slate-500 text-sm sm:col-span-2 md:col-span-3">Henüz ders tıklama verisi bulunmuyor.</p>`;
+                return;
+            }
+
+            // Derslere göre tıklanma sayılarını hesapla
+            const sayac = {};
+            data.forEach(item => {
+                sayac[item.ders_adi] = (sayac[item.ders_adi] || 0) + 1;
+            });
+
+            // HTML olarak listele
+            liste.innerHTML = Object.entries(sayac).map(([ders, sayi]) => `
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex justify-between items-center">
+                    <span class="font-bold text-slate-200">${ders}</span>
+                    <span class="bg-indigo-950 border border-indigo-800/60 text-indigo-300 px-3 py-1 rounded-xl text-xs font-black">${sayi} Tıklanma</span>
+                </div>
+            `).join('');
+        }
+
+        // 💬 ÖĞRENCİ GERİ BİLDİRİMLERİNİ ÇEKME
+        async function adminFeedbackYukle() {
+            const liste = document.getElementById('admin-feedback-listesi');
+            const { data, error } = await _supabase.from('student_feedbacks').select('*').order('created_at', { ascending: false });
+
+            if (!liste) return;
+            if (error || !data || data.length === 0) {
+                liste.innerHTML = `<p class="text-slate-500 text-sm">Henüz öğrenci geri bildirimi yok.</p>`;
+                return;
+            }
+
+            liste.innerHTML = data.map(item => `
+                <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-amber-400 text-sm">👤 ${item.ogrenci_adi || 'İsimsiz Öğrenci'}</span>
+                        <span class="text-xs text-slate-500">${new Date(item.created_at).toLocaleString('tr-TR')}</span>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">${item.mesaj}</p>
+                </div>
+            `).join('');
         }
 
         async function istatistikleriGuncelle() {
