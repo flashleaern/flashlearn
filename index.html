@@ -1,578 +1,296 @@
 <!DOCTYPE html>
-<html lang="tr" class="dark">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <!-- 📱 MOBİL UYUM İÇİN EN KRİTİK SATIR -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlashLearn - Ders Notları & Test Platformu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>FlashLearn - Mobil Uyumlu Çalışma Platformu</title>
+    
+    <!-- Supabase JS CDN (Gerekirse açarsın) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = { darkMode: 'class' }
-    </script>
+    
+    <style>
+        /* 🎨 TEMEL VE SIFIRLAMA AYARLARI */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 🔝 ÜST MENÜ (NAVBAR) */
+        header {
+            width: 100%;
+            background-color: #1e293b;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #2563eb;
+        }
+
+        /* 📦 ANA İÇERİK KAPSAYICISI */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* 🃏 FLASHCARD (DERS KARTI) ANİMASYONU */
+        .card-container {
+            width: 100%;
+            height: 320px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            font-size: 1.4rem;
+            text-align: center;
+            border-radius: 20px;
+            border: 2px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            user-select: none;
+        }
+
+        .card-front {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: #f8fafc;
+        }
+
+        .card-back {
+            background: linear-gradient(145deg, #0284c7, #0369a1);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .card-hint {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 15px;
+            font-weight: normal;
+        }
+
+        .card-back .card-hint {
+            color: #e0f2fe;
+        }
+
+        /* 🕹️ BUTONLAR VE KONTROLLER */
+        .controls {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #334155;
+        }
+
+        .btn-primary {
+            background-color: #0284c7;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0369a1;
+        }
+
+        /* 📱 MOBİL UYUM (RESPONSIVE / TELEFON EKRANLARI) */
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 16px;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .card-container {
+                height: 260px; /* Mobilde kart boyutu otomatik küçülür */
+            }
+
+            .card-front, .card-back {
+                font-size: 1.2rem;
+                padding: 18px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 0.95rem;
+                border-radius: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                height: 230px;
+            }
+
+            .card-front, .card-back {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col relative overflow-x-hidden transition-colors duration-300">
+<body>
 
-    <!-- 🖼️ RESİMLİ ARKA PLAN -->
-    <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <img src="arkaplan.jpg" 
-             alt="Arka Plan" 
-             class="w-full h-full object-cover object-center"
-             onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop'">
-        <div class="absolute inset-0 bg-slate-900/70 dark:bg-slate-950/85 backdrop-blur-[3px]"></div>
-    </div>
-
-    <!-- Üst Menü / Navbar -->
-    <header class="bg-indigo-600/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-indigo-700/50 dark:border-slate-800/80 text-white sticky top-0 z-50 shadow-xl">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            
-            <!-- ⚡ FLASHLEARN LOGO VE MARKA -->
-            <h1 class="text-3xl font-black tracking-wide cursor-pointer flex items-center gap-3.5 hover:opacity-90 transition group" onclick="anaSayfayaDon()">
-                <!-- Logo Amblemi -->
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                        <span class="text-2xl animate-pulse">⚡</span>
-                    </div>
-                </div>
-                <!-- Marka Yazısı -->
-                <span class="bg-gradient-to-r from-amber-400 via-indigo-200 to-white bg-clip-text text-transparent font-extrabold tracking-tight">
-                    Flash<span class="text-indigo-400">Learn</span>
-                </span>
-            </h1>
-            
-            <div class="flex items-center gap-4">
-                <button id="theme-toggle-btn" onclick="temaDegistir()" class="p-3 rounded-2xl font-semibold bg-indigo-700/80 dark:bg-slate-800/80 hover:bg-indigo-800 dark:hover:bg-slate-700 text-amber-300 transition text-2xl shadow-md hover:scale-105 duration-200">☀️</button>
-                <button onclick="anaSayfayaDon()" class="px-5 py-3 rounded-2xl font-bold bg-indigo-700/80 dark:bg-slate-800/80 hover:bg-indigo-800 dark:hover:bg-slate-700 text-white transition text-base hover:scale-105 duration-200 shadow-md">🏠 Tüm Dersler</button>
-                
-                <!-- KULLANICI GİRİŞ DÜĞMESİ -->
-                <div id="auth-btn-area">
-                    <button onclick="authModalAc()" class="px-5 py-3 rounded-2xl font-extrabold bg-amber-500 hover:bg-amber-400 text-slate-950 transition text-base shadow-lg hover:scale-105">🔑 Giriş Yap / Kayıt Ol</button>
-                </div>
-            </div>
-        </div>
+    <!-- NAV BAR -->
+    <header>
+        <div class="logo">⚡ FlashLearn</div>
+        <button class="nav-btn" onclick="alert('Giriş sistemi Supabase ile yakında aktif!')">Giriş Yap</button>
     </header>
 
-    <main class="container mx-auto px-6 py-10 flex-grow max-w-5xl z-10">
-
-        <!-- EKRAN 1: DERS KARTLARI -->
-        <section id="ekran-dersler" class="space-y-8">
-            <div class="border-b border-slate-300/30 dark:border-slate-800/80 pb-5">
-                <h2 class="text-4xl font-black text-white">📚 Ders Seçin</h2>
-                <p class="text-slate-300 dark:text-slate-400 text-base mt-2">Çalışmak istediğiniz dersi seçerek bölümlere ulaşabilirsiniz.</p>
-            </div>
-            <div id="dersler-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-        </section>
-
-        <!-- EKRAN 2: BÖLÜMLER / KONULAR -->
-        <section id="ekran-bolumler" class="hidden space-y-8">
-            <button onclick="anaSayfayaDon()" class="text-indigo-400 hover:underline font-bold flex items-center gap-2 transition text-base">← Derslere Dön</button>
-            <div class="border-b border-slate-300/30 dark:border-slate-800/80 pb-5">
-                <h2 id="secili-ders-baslik" class="text-4xl font-black text-white"></h2>
-            </div>
-            <div id="bolumler-grid" class="grid sm:grid-cols-2 gap-5"></div>
-        </section>
-
-        <!-- EKRAN 3: DETAY (NOTLAR VE TEST) -->
-        <section id="ekran-detay" class="hidden space-y-8">
-            <button onclick="bolumlerEkraniAc()" class="text-indigo-400 hover:underline font-bold flex items-center gap-2 transition text-base">← Bölümlere Dön</button>
-
-            <div class="border-b border-slate-300/30 dark:border-slate-800/80 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
-                <div>
-                    <span id="detay-ders-rozet" class="text-xs font-bold text-indigo-300 bg-indigo-950/80 border border-indigo-700/50 px-3.5 py-1.5 rounded-xl uppercase tracking-wider"></span>
-                    <h2 id="detay-bolum-baslik" class="text-4xl font-black text-white mt-3"></h2>
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        
+        <!-- FLASHCARD -->
+        <div class="card-container" onclick="flipCard()">
+            <div class="card" id="flashcard">
+                <div class="card-front">
+                    <p id="card-question">Soru Yükleniyor...</p>
+                    <span class="card-hint">🔄 Cevabı görmek için dokun</span>
                 </div>
-
-                <div class="flex bg-slate-900/80 border border-slate-800/80 p-2 rounded-2xl w-full sm:w-auto backdrop-blur-md shadow-lg">
-                    <button id="tab-notlar-btn" onclick="tabDegistir('notlar')" class="flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base transition-all duration-200 bg-indigo-600 text-white shadow-lg">📖 Notlar</button>
-                    <button id="tab-test-btn" onclick="tabDegistir('test')" class="flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base transition-all duration-200 text-slate-400">📝 Test Çöz</button>
+                <div class="card-back">
+                    <p id="card-answer">Cevap Yükleniyor...</p>
+                    <span class="card-hint">🔄 Soruyu görmek için dokun</span>
                 </div>
             </div>
-
-            <div id="tab-notlar-icerik" class="space-y-5">
-                <div id="detay-notlar-listesi" class="grid gap-5"></div>
-            </div>
-
-            <div id="tab-test-icerik" class="hidden">
-                <div id="detay-soru-kutusu" class="bg-slate-900/90 backdrop-blur-md p-8 rounded-3xl border border-slate-800/80 shadow-2xl space-y-6"></div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- 🔑 GİRİŞ VE KODLU KAYIT MODAL PENCERESİ -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex justify-center items-center p-4 z-50 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg p-8 rounded-3xl shadow-2xl space-y-6 relative">
-            <button onclick="authModalKapat()" class="absolute top-5 right-5 text-slate-400 hover:text-white font-bold text-2xl transition">✕</button>
-            
-            <!-- SEKMELER (TABLAR) -->
-            <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
-                <button id="tab-login-head" onclick="authTabDegistir('login')" class="flex-1 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow">🔑 Giriş Yap</button>
-                <button id="tab-register-head" onclick="authTabDegistir('register')" class="flex-1 py-3 rounded-xl font-bold text-sm text-slate-400">📝 Kayıt Ol (Kodlu)</button>
-            </div>
-
-            <!-- TAB 1: GİRİŞ YAP (ŞİFRELİ) -->
-            <div id="auth-login-form" class="space-y-5">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">E-POSTA ADRESİNİZ</label>
-                    <input id="login-email" type="email" placeholder="ornek@gmail.com" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">ŞİFRENİZ</label>
-                    <input id="login-pass" type="password" placeholder="••••••••" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
-                </div>
-                <button onclick="ogrenciGiris()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
-                    🚀 Hesaba Giriş Yap
-                </button>
-            </div>
-
-            <!-- TAB 2: KAYIT OL (KOD DOĞRULAMALI) -->
-            <div id="auth-register-form" class="space-y-5 hidden">
-                <!-- KAYIT ADIM 1: BİLGİLER -->
-                <div id="reg-step-1" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-2">E-POSTA ADRESİNİZ</label>
-                        <input id="reg-email" type="email" placeholder="ornek@gmail.com" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-2">YENİ ŞİFRE BELİRLEYİN</label>
-                        <input id="reg-pass" type="password" placeholder="En az 6 karakter" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-base focus:border-indigo-500 transition">
-                    </div>
-                    <button id="btn-reg-kod-gonder" onclick="kayitKodGonder()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
-                        📨 Doğrulama Kodu Gönder
-                    </button>
-                </div>
-
-                <!-- KAYIT ADIM 2: 6 HANELİ KOD -->
-                <div id="reg-step-2" class="space-y-4 hidden">
-                    <div class="bg-indigo-950/60 border border-indigo-800/60 p-4 rounded-2xl text-center">
-                        <p class="text-sm text-indigo-300"><b>Mailinize 6 haneli doğrulama kodu gönderildi!</b><br>Gelen kutunuzu veya Spam klasörünü kontrol edin.</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 mb-2">6 HANELİ DOĞRULAMA KODU</label>
-                        <input id="reg-code" type="text" maxlength="6" placeholder="123456" class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none text-slate-200 text-center font-mono text-2xl tracking-[0.3em] focus:border-emerald-500 transition">
-                    </div>
-                    <button id="btn-reg-kod-dogrula" onclick="kayitKodDogrula()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 rounded-2xl transition text-base shadow-xl hover:scale-[1.02]">
-                        ✅ Kodu Doğrula ve Kaydı Tamamla
-                    </button>
-                    <button onclick="regAdimlariSifirla()" class="w-full text-xs text-slate-400 hover:text-slate-200 font-semibold py-1">
-                        ← Geri Dön / Bilgileri Düzenle
-                    </button>
-                </div>
-            </div>
-
         </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <button class="btn" onclick="prevCard()">← Önceki</button>
+            <button class="btn btn-primary" onclick="flipCard()">Çevir</button>
+            <button class="btn" onclick="nextCard()">Sonraki →</button>
+        </div>
+
     </div>
 
-    <!-- ALT BİLGİ -->
-    <footer class="bg-slate-900/70 backdrop-blur-md border-t border-slate-800/80 text-slate-400 py-6 mt-16 text-center text-sm z-10">
-        <p>© 2026 FlashLearn - Tüm Hakları Saklıdır.</p>
-    </footer>
-
+    <!-- JAVASCRIPT KODLARI -->
     <script>
-        const SUPABASE_URL = "https://eulpwuoxvgoxjddtqodb.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_HQSCc4MdvipzggDT_DW26Q_VHPU8770";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Örnek Kart Verileri
+        const cards = [
+            { question: "Mitoz bölünme nedir?", answer: "Tek bir hücreden iki özdeş hücre oluşmasıdır." },
+            { question: "Fotosentez denklemi nedir?", answer: "6CO2 + 6H2O + Işık ➔ C6H12O6 + 6O2" },
+            { question: "Atom numarası neyi gösterir?", answer: "Çekirdekteki proton sayısını gösterir." }
+        ];
 
-        let derslerListesi = [];
-        let notlar = [];
-        let sorular = [];
-        let seciliDers = "";
-        let seciliBolum = "";
-        let aktifSoruIndex = 0;
-        let mevcutTestSorulari = [];
-        let dogruSayisi = 0;
-        let yanlisSayisi = 0;
+        let currentIndex = 0;
 
-        async function oturumKontrol() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            const btnArea = document.getElementById('auth-btn-area');
+        function updateCard() {
+            const cardElement = document.getElementById('flashcard');
+            cardElement.classList.remove('flipped');
+            setTimeout(() => {
+                document.getElementById('card-question').innerText = cards[currentIndex].question;
+                document.getElementById('card-answer').innerText = cards[currentIndex].answer;
+            }, 150);
+        }
 
-            if (session) {
-                const userEmail = session.user.email;
-                btnArea.innerHTML = `
-                    <div class="flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-2xl border border-slate-700/50 shadow-md">
-                        <span class="text-sm font-extrabold text-indigo-300">👤 ${userEmail.split('@')[0]}</span>
-                        <button onclick="ogrenciCikis()" class="text-xs font-bold text-rose-400 hover:underline ml-1">Çıkış</button>
-                    </div>
-                `;
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
             } else {
-                btnArea.innerHTML = `
-                    <button onclick="authModalAc()" class="px-5 py-3 rounded-2xl font-extrabold bg-amber-500 hover:bg-amber-400 text-slate-950 transition text-base shadow-lg hover:scale-105">🔑 Giriş Yap / Kayıt Ol</button>
-                `;
+                currentIndex = 0; // Başa dön
             }
+            updateCard();
         }
 
-        function authModalAc() { 
-            authTabDegistir('login');
-            regAdimlariSifirla();
-            document.getElementById('auth-modal').classList.remove('hidden'); 
-        }
-
-        function authModalKapat() { 
-            document.getElementById('auth-modal').classList.add('hidden'); 
-        }
-
-        function authTabDegistir(tab) {
-            const loginHead = document.getElementById('tab-login-head');
-            const regHead = document.getElementById('tab-register-head');
-            const loginForm = document.getElementById('auth-login-form');
-            const regForm = document.getElementById('auth-register-form');
-
-            if (tab === 'login') {
-                loginHead.className = "flex-1 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow";
-                regHead.className = "flex-1 py-3 rounded-xl font-bold text-sm text-slate-400";
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
             } else {
-                regHead.className = "flex-1 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow";
-                loginHead.className = "flex-1 py-3 rounded-xl font-bold text-sm text-slate-400";
-                regForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
+                currentIndex = cards.length - 1; // Sona git
             }
+            updateCard();
         }
 
-        function regAdimlariSifirla() {
-            document.getElementById('reg-step-1').classList.remove('hidden');
-            document.getElementById('reg-step-2').classList.add('hidden');
-            document.getElementById('reg-code').value = '';
-        }
-
-        async function ogrenciGiris() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-pass').value.trim();
-
-            if (!email || !password) return alert('E-posta ve şifrenizi girin!');
-
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) return alert('Giriş Başarısız: ' + error.message);
-
-            authModalKapat();
-            oturumKontrol();
-        }
-
-        async function kayitKodGonder() {
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-pass').value.trim();
-            const btn = document.getElementById('btn-reg-kod-gonder');
-
-            if (!email || !password) return alert('Lütfen e-posta ve şifre belirleyin!');
-            if (password.length < 6) return alert('Şifre en az 6 karakter olmalı!');
-
-            btn.innerText = "⏳ Kod Gönderiliyor...";
-            btn.disabled = true;
-
-            const { error } = await _supabase.auth.signUp({ email, password });
-
-            btn.innerText = "📨 Doğrulama Kodu Gönder";
-            btn.disabled = false;
-
-            if (error) return alert('Kayıt Hatası: ' + error.message);
-
-            document.getElementById('reg-step-1').classList.add('hidden');
-            document.getElementById('reg-step-2').classList.remove('hidden');
-        }
-
-        async function kayitKodDogrula() {
-            const email = document.getElementById('reg-email').value.trim();
-            const token = document.getElementById('reg-code').value.trim();
-            const btn = document.getElementById('btn-reg-kod-dogrula');
-
-            if (!token || token.length < 6) return alert('Lütfen 6 haneli kodu tam yazın!');
-
-            btn.innerText = "⏳ Doğrulanıyor...";
-            btn.disabled = true;
-
-            const { data, error } = await _supabase.auth.verifyOtp({
-                email,
-                token,
-                type: 'signup'
-            });
-
-            btn.innerText = "✅ Kodu Doğrula ve Kaydı Tamamla";
-            btn.disabled = false;
-
-            if (error) return alert('Doğrulama Başarısız: Kod yanlış veya süresi dolmuş.');
-
-            alert('🎉 Hesabınız doğrulandı ve kayıt tamamlandı!');
-            authModalKapat();
-            oturumKontrol();
-        }
-
-        async function ogrenciCikis() {
-            await _supabase.auth.signOut();
-            oturumKontrol();
-        }
-
-        async function verileriYukle() {
-            const { data: dData } = await _supabase.from('dersler').select('*');
-            const { data: nData } = await _supabase.from('notlar').select('*');
-            const { data: sData } = await _supabase.from('sorular').select('*');
-            
-            derslerListesi = dData || [];
-            notlar = nData || [];
-            sorular = sData || [];
-            anaSayfayaDon();
-        }
-
-        function temaBaslat() {
-            const kayitliTema = localStorage.getItem('theme') || 'dark';
-            if (kayitliTema === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.getElementById('theme-toggle-btn').innerText = '☀️';
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('theme-toggle-btn').innerText = '🌙';
-            }
-        }
-
-        function temaDegistir() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                document.getElementById('theme-toggle-btn').innerText = '🌙';
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                document.getElementById('theme-toggle-btn').innerText = '☀️';
-            }
-        }
-
-        function ekranGoster(ekranId) {
-            document.getElementById('ekran-dersler').classList.add('hidden');
-            document.getElementById('ekran-bolumler').classList.add('hidden');
-            document.getElementById('ekran-detay').classList.add('hidden');
-            document.getElementById(ekranId).classList.remove('hidden');
-        }
-
-        function anaSayfayaDon() {
-            ekranGoster('ekran-dersler');
-            const grid = document.getElementById('dersler-grid');
-            grid.innerHTML = '';
-
-            if (derslerListesi.length === 0) {
-                grid.innerHTML = `<p class="text-slate-400 col-span-3 text-center py-8">Henüz hiç ders eklenmemiş.</p>`;
-                return;
-            }
-
-            derslerListesi.forEach(ders => {
-                const notSayisi = notlar.filter(n => n.kategori === ders.ad).length;
-                const soruSayisi = sorular.filter(s => s.kategori === ders.ad).length;
-
-                grid.innerHTML += `
-                    <div onclick="dersSec('${ders.ad}')" 
-                         class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 p-8 rounded-3xl cursor-pointer hover:border-indigo-500 hover:-translate-y-2 transition-all duration-300 shadow-2xl group">
-                        <div class="text-5xl mb-4 group-hover:scale-125 transition-transform duration-300">${ders.ikon || '📚'}</div>
-                        <h3 class="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors">${ders.ad}</h3>
-                        <div class="flex gap-3 text-sm font-semibold text-slate-400 mt-4">
-                            <span class="bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/50">📖 ${notSayisi} Not</span>
-                            <span class="bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/50">📝 ${soruSayisi} Soru</span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function dersSec(dersAd) {
-            seciliDers = dersAd;
-            bolumlerEkraniAc();
-        }
-
-        function bolumlerEkraniAc() {
-            ekranGoster('ekran-bolumler');
-            document.getElementById('secili-ders-baslik').innerText = `${seciliDers} - Bölümler / Konular`;
-
-            const dersNotlari = notlar.filter(n => n.kategori === seciliDers);
-            const dersSorulari = sorular.filter(s => s.kategori === seciliDers);
-
-            const bolumSet = new Set([
-                ...dersNotlari.map(n => n.bolum || "Genel"),
-                ...dersSorulari.map(s => s.bolum || "Genel")
-            ]);
-
-            const bolumler = Array.from(bolumSet);
-            const grid = document.getElementById('bolumler-grid');
-            grid.innerHTML = '';
-
-            if (bolumler.length === 0) {
-                grid.innerHTML = `<p class="text-slate-400 sm:col-span-2 text-center py-8">Bu ders için henüz bulutta içerik bulunmuyor.</p>`;
-                return;
-            }
-
-            bolumler.forEach(bolumAd => {
-                const bNotSayisi = dersNotlari.filter(n => (n.bolum || "Genel") === bolumAd).length;
-                const bSoruSayisi = dersSorulari.filter(s => (s.bolum || "Genel") === bolumAd).length;
-
-                grid.innerHTML += `
-                    <div onclick="bolumSec('${bolumAd}')" class="bg-slate-900/80 backdrop-blur-md border border-slate-800/80 p-6 rounded-3xl cursor-pointer hover:border-purple-500 hover:-translate-y-1.5 transition-all duration-300 shadow-2xl flex justify-between items-center group">
-                        <div>
-                            <h4 class="text-xl font-bold text-white group-hover:text-purple-400 transition">📌 ${bolumAd}</h4>
-                            <p class="text-sm text-slate-400 mt-1.5">${bNotSayisi} Not • ${bSoruSayisi} Soru</p>
-                        </div>
-                        <span class="text-slate-400 group-hover:translate-x-2 transition-transform text-2xl">➔</span>
-                    </div>
-                `;
-            });
-        }
-
-        function bolumSec(bolumAd) {
-            seciliBolum = bolumAd;
-            ekranGoster('ekran-detay');
-            document.getElementById('detay-ders-rozet').innerText = seciliDers;
-            document.getElementById('detay-bolum-baslik').innerText = seciliBolum;
-            tabDegistir('notlar');
-        }
-
-        function tabDegistir(tab) {
-            const notBtn = document.getElementById('tab-notlar-btn');
-            const testBtn = document.getElementById('tab-test-btn');
-            const notIcerik = document.getElementById('tab-notlar-icerik');
-            const testIcerik = document.getElementById('tab-test-icerik');
-
-            if (tab === 'notlar') {
-                notBtn.className = "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base bg-indigo-600 text-white shadow-lg";
-                testBtn.className = "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base text-slate-400";
-                notIcerik.classList.remove('hidden');
-                testIcerik.classList.add('hidden');
-                notlariListele();
-            } else {
-                testBtn.className = "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base bg-indigo-600 text-white shadow-lg";
-                notBtn.className = "flex-1 sm:flex-initial px-6 py-3 rounded-xl font-extrabold text-base text-slate-400";
-                testIcerik.classList.remove('hidden');
-                notIcerik.classList.add('hidden');
-                testiSifirlaVeBaslat();
-            }
-        }
-
-        function notlariListele() {
-            const liste = document.getElementById('detay-notlar-listesi');
-            liste.innerHTML = '';
-            const filtrelenmis = notlar.filter(n => n.kategori === seciliDers && (n.bolum || "Genel") === seciliBolum);
-
-            if (filtrelenmis.length === 0) {
-                liste.innerHTML = `<p class="text-slate-400 text-center py-8">Not bulunmuyor.</p>`;
-                return;
-            }
-
-            filtrelenmis.forEach(item => {
-                liste.innerHTML += `
-                    <div class="bg-slate-900/80 backdrop-blur-md p-8 rounded-3xl border border-slate-800/80 shadow-2xl space-y-4">
-                        <h3 class="text-2xl font-bold text-white">${item.baslik}</h3>
-                        <p class="text-slate-300 leading-relaxed text-base">${item.icerik}</p>
-                        
-                        ${item.pdf_url ? `
-                            <div class="pt-3">
-                                <a href="${item.pdf_url}" target="_blank" class="inline-flex items-center gap-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-5 py-3 rounded-2xl text-sm transition shadow-xl hover:scale-105">
-                                    📄 PDF Ders Notunu İncele / İndir ➔
-                                </a>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            });
-        }
-
-        function testiSifirlaVeBaslat() {
-            aktifSoruIndex = 0;
-            dogruSayisi = 0;
-            yanlisSayisi = 0;
-            mevcutTestSorulari = sorular.filter(s => s.kategori === seciliDers && (s.bolum || "Genel") === seciliBolum);
-            soruyuGoster();
-        }
-
-        function soruyuGoster() {
-            const kutu = document.getElementById('detay-soru-kutusu');
-
-            if (mevcutTestSorulari.length === 0) {
-                kutu.innerHTML = `<p class="text-slate-400 text-center py-8">Bu bölüme ait soru bulunmuyor.</p>`;
-                return;
-            }
-
-            if (aktifSoruIndex >= mevcutTestSorulari.length) {
-                const toplam = mevcutTestSorulari.length;
-                const basariOrani = Math.round((dogruSayisi / toplam) * 100);
-
-                kutu.innerHTML = `
-                    <div class="text-center space-y-6 py-6">
-                        <div class="inline-block p-5 bg-indigo-500/10 rounded-full text-6xl mb-2">🎯</div>
-                        <h3 class="text-3xl font-black text-white">Test Tamamlandı!</h3>
-                        
-                        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                                <span class="text-xs text-slate-400 block font-bold uppercase">Doğru</span>
-                                <span class="text-2xl font-black text-emerald-400">${dogruSayisi}</span>
-                            </div>
-                            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                                <span class="text-xs text-slate-400 block font-bold uppercase">Yanlış</span>
-                                <span class="text-2xl font-black text-rose-400">${yanlisSayisi}</span>
-                            </div>
-                            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                                <span class="text-xs text-slate-400 block font-bold uppercase">Başarı</span>
-                                <span class="text-2xl font-black text-indigo-400">%${basariOrani}</span>
-                            </div>
-                        </div>
-
-                        <p class="text-base text-slate-300 font-medium">
-                            ${basariOrani >= 70 ? '🎉 Mükemmel performans! Konuyu gayet iyi kavramışsın.' : '💪 Güzel deneme! Eksiklerin için özet notları tekrar gözden geçirebilirsin.'}
-                        </p>
-
-                        <button onclick="testiSifirlaVeBaslat()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold py-4 rounded-2xl transition shadow-xl hover:scale-[1.02]">
-                            🔄 Testi Tekrar Çöz
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            const mevcudSoru = mevcutTestSorulari[aktifSoruIndex];
-            kutu.innerHTML = `
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Soru ${aktifSoruIndex + 1} / ${mevcutTestSorulari.length}</span>
-                    <span class="text-xs font-bold text-slate-400">Doğru: ${dogruSayisi} | Yanlış: ${yanlisSayisi}</span>
-                </div>
-                <h3 class="text-2xl font-black text-white py-2">${mevcudSoru.soru}</h3>
-                <div class="grid gap-4 pt-2">
-                    ${['A', 'B', 'C', 'D'].map(key => `
-                        <button onclick="cevapKontrol('${key}')" id="btn-${key}" class="text-left p-5 rounded-2xl border border-slate-800 bg-slate-950/60 font-semibold text-slate-200 text-base flex items-center justify-between hover:border-indigo-500/50 transition">
-                            <span><b class="text-indigo-400 font-bold">${key})</b> ${mevcudSoru['sik_' + key.toLowerCase()]}</span>
-                        </button>
-                    `).join('')}
-                </div>
-                <div id="sonuc-mesaji" class="mt-4 font-bold text-center text-xl min-h-[32px]"></div>
-                <button id="sonraki-btn" onclick="sonrakiSoru()" class="hidden w-full mt-4 bg-indigo-600 text-white font-extrabold py-4 rounded-2xl shadow-xl hover:bg-indigo-500 transition text-base">Sonraki Soru ➔</button>
-            `;
-        }
-
-        function cevapKontrol(secilen) {
-            const mevcudSoru = mevcutTestSorulari[aktifSoruIndex];
-            const mesaj = document.getElementById('sonuc-mesaji');
-            const sonrakiBtn = document.getElementById('sonraki-btn');
-            
-            ['A', 'B', 'C', 'D'].forEach(k => {
-                const btn = document.getElementById(`btn-${k}`);
-                if (btn) btn.onclick = null;
-            });
-
-            if (secilen === mevcudSoru.dogru) {
-                dogruSayisi++;
-                document.getElementById(`btn-${secilen}`).classList.add('bg-emerald-950/60', 'border-emerald-500', 'text-emerald-300');
-                mesaj.innerHTML = `<span class="text-emerald-400">🎉 Tebrikler! Doğru Cevap.</span>`;
-            } else {
-                yanlisSayisi++;
-                document.getElementById(`btn-${secilen}`).classList.add('bg-rose-950/60', 'border-rose-500', 'text-rose-300');
-                document.getElementById(`btn-${mevcudSoru.dogru}`).classList.add('bg-emerald-950/60', 'border-emerald-500', 'text-emerald-300');
-                mesaj.innerHTML = `<span class="text-rose-400">❌ Yanlış Cevap! Doğru şık: ${mevcudSoru.dogru}</span>`;
-            }
-
-            if (sonrakiBtn) sonrakiBtn.classList.remove('hidden');
-        }
-
-        function sonrakiSoru() {
-            aktifSoruIndex++;
-            soruyuGoster();
-        }
-
-        oturumKontrol();
-        temaBaslat();
-        verileriYukle();
+        // Sayfa açıldığında ilk kartı yükle
+        updateCard();
     </script>
 </body>
 </html>
